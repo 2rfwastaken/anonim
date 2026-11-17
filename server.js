@@ -1106,6 +1106,11 @@ async function ensureRobloxBackend() {
             stdio: ['ignore', 'pipe', 'pipe']
         });
 
+        robloxBackendProcess.on('error', (err) => {
+            console.log('  [!] Roblox motoru başlatılamadı (python bulunamadı?):', err.message);
+            robloxBackendProcess = null;
+        });
+
         robloxBackendProcess.stdout.on('data', (d) => {
             const msg = d.toString().trim();
             if (msg) console.log(`  [Roblox Engine] ${msg}`);
