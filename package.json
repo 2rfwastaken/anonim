@@ -2,10 +2,11 @@
   "name": "early-host",
   "version": "1.0.0",
   "description": "Early.Host — Discord Kullanıcı Adı ve Rozet Tarayıcı (Türkçe)",
-  "main": "scrapper.js",
+  "main": "server.js",
   "scripts": {
     "web": "node server.js",
-    "start": "node scrapper.js",
+    "start": "node server.js",
+    "scrapper": "node scrapper.js",
     "bot": "node bot.js",
     "test": "node test_system.js",
     "bundle": "esbuild scrapper.js --bundle --platform=node --target=node24 --external:ffmpeg-static --outfile=bundle.js",

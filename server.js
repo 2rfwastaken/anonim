@@ -3552,7 +3552,7 @@ async function startServer() {
     }
     await ensureRobloxBackend();
 
-    server.listen(PORT, '127.0.0.1', () => {
+    server.listen(PORT, '0.0.0.0', () => {
         console.log('\n  ══════════════════════════════════════════════════════════');
         console.log('   ⚡ EARLY.HOST — 3D WEB PLATFORMU & CANLI ARAÇ SUNUCUSU');
         console.log(`   🌐 Adres   : http://localhost:${PORT}`);
