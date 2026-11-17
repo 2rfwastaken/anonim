@@ -1,0 +1,12 @@
+node_modules/
+.env
+
+# Runtime / generated data — not source
+keys_db.json
+visitors_db.json
+stats.json
+
+# Build artifacts
+bundle.js
+EarlyHost.exe
+*.exe

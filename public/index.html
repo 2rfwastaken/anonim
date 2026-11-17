@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#000000" />
+  <title>Early.Host — Discord & Roblox Analiz Platformu</title>
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css?v=20261117c" />
+</head>
+<body>
+
+  <div id="scrollProgressBar"></div>
+
+  <!-- ================= 3D INTERACTIVE OBSIDIAN VAULT LOGIN GATE ================= -->
+  <div id="portalGate" class="portal-gate">
+    <canvas id="gate3dCanvas" class="gate-3d-canvas"></canvas>
+    <div class="auth-ambient-glow"></div>
+
+    <div class="pro-login-shell" id="portalStageAuth">
+      <div class="pro-login-card tilt-3d-surface" id="portalTiltCard">
+        <div class="pro-login-glare" id="portalCardGlare"></div>
+
+        <div class="pro-login-brand">
+          <div class="pro-login-logo-stage">
+            <div class="logo-orbit-ring outer"></div>
+            <div class="logo-orbit-ring inner"></div>
+            <div class="pro-login-logo-box">
+              <img src="/logo.png" alt="Early.Host" class="pro-login-logo" />
+            </div>
+          </div>
+          <h1>Early.Host</h1>
+          <p>Lisans anahtarınız ve donanım kimliğiniz ile güvenli giriş yapın.</p>
+        </div>
+
+        <div class="pro-login-form">
+          <div class="pro-field">
+            <div class="pro-label-row">
+              <label for="gateKeyInput">Lisans Anahtarı</label>
+              <span class="waf-shield-tag">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                WAF & Tek-HWID Korumalı
+              </span>
+            </div>
+            <div class="gate-key-input-wrap">
+              <span class="gate-key-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+              </span>
+              <input type="password" id="gateKeyInput" class="gate-key-input" placeholder="EARLY-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter') submitLicenseLogin()" />
+              <div class="gate-key-actions">
+                <button type="button" class="gate-paste-btn" onclick="pasteKeyFromClipboard()">Yapıştır</button>
+                <button type="button" class="gate-eye-btn" onclick="toggleInputVisibility('gateKeyInput', this)" title="Göster / Gizle">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="pro-hwid-row">
+            <div class="pro-hwid-meta">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <span class="hwid-lock-dot"></span>
+                <span>Cihaz Kimliği (Gerçek HWID)</span>
+              </div>
+              <strong id="gateHwidDisplay">Doğrulanıyor...</strong>
+            </div>
+            <button type="button" class="gate-util-btn" onclick="copyCurrentHwid()">Kopyala</button>
+          </div>
+
+          <div id="gateVerifySteps" class="gate-verify-steps hidden"></div>
+          <div id="gateErrorBox" class="portal-error hidden"></div>
+
+          <button type="button" class="portal-submit-btn" id="gateLoginBtn" onclick="submitLicenseLogin()">
+            <span>Kasayı Aç & Giriş Yap</span>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+
+        <div class="portal-card-foot">
+          <span>Donanım Mühürlü Erişim</span>
+          <a href="https://discord.gg/anonim" target="_blank" rel="noopener">discord.gg/anonim ↗</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBTLE AMBIENT CANVAS -->
+  <canvas id="bg-canvas"></canvas>
+  <div class="vignette-overlay"></div>
+
+  <!-- TOP NAVBAR -->
+  <header class="navbar" id="mainNavbar">
+    <a href="#hero" class="brand">
+      <div class="brand-mark">
+        <img src="/logo.png" alt="Early.Host" class="brand-emblem-img sm" />
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">Early.Host</span>
+      </div>
+    </a>
+
+    <nav class="nav-links" aria-label="Ana Menü">
+      <a href="#hero" class="nav-link active" data-nav="hero">Genel Bakış</a>
+      <button class="nav-link" data-nav="discord" onclick="launchTool('discord')">Discord</button>
+      <button class="nav-link" data-nav="roblox" onclick="launchTool('roblox')">Roblox</button>
+      <button class="nav-link" data-nav="osint" onclick="launchTool('osint')">Araçlar</button>
+      <a href="#vencord" class="nav-link" data-nav="vencord">Vencord</a>
+      <a href="#community" class="nav-link" data-nav="community">Topluluk</a>
+    </nav>
+
+    <div class="nav-actions">
+      <button type="button" class="status-pill" title="Hızlı Arama (Ctrl + K)" onclick="openCmdPalette()" style="cursor:pointer;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span>Ara</span>
+        <kbd style="font-family:var(--font-mono); font-size:9.5px; padding:1px 5px; border-radius:4px; background:#141414; border:1px solid rgba(255,255,255,0.14); color:#a1a1aa;">Ctrl K</kbd>
+      </button>
+      <button type="button" class="nav-visitors-btn hidden" id="navVisitorsBtn" onclick="openVisitorsRadarDirect()" title="Siteye Girenlerin Full Gelişmiş Log Kayıtları">
+        <span class="vis-live-dot"></span>
+        <span>Girenler</span>
+      </button>
+      <button type="button" class="role-panel-btn hidden" id="navControlPanelBtn" onclick="openControlCenterModal()">
+        <span id="navRoleLabel">Yönetim</span>
+      </button>
+      <a href="https://discord.gg/anonim" target="_blank" rel="noopener" class="discord-cta">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028z"/>
+        </svg>
+        discord.gg/anonim
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= HERO & PRODUCT SHOWCASE ================= -->
+    <section id="hero" class="hero-section">
+      <div class="hero-left">
+        <div class="eyebrow">
+          <span class="eyebrow-pulse"></span> Discord & Roblox Analiz Platformu
+        </div>
+        <h1 class="hero-title">
+          Yüksek hızlı tarama ve<br />
+          <span class="glow-word">özel araç ekosistemi.</span>
+        </h1>
+        <p class="hero-desc">
+          Discord rozet ve kısa isim tarayıcıları, özel davet URL kontrolü, Roblox envanter analizi, token araçları ve hazır kurulumlu Vencord eklentileri tek merkezde.
+        </p>
+
+        <div class="hero-buttons">
+          <button class="btn-cyber primary" onclick="launchTool('discord')">
+            Araç Konsolunu Aç
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+          <a href="#vencord" class="btn-cyber">
+            Vencord Eklentileri
+          </a>
+        </div>
+
+        <div class="hero-stats-grid">
+          <div class="hero-stat-box">
+            <span class="stat-val">8+</span>
+            <span class="stat-lbl">Entegre Canlı Araç</span>
+          </div>
+          <div class="hero-stat-box">
+            <span class="stat-val">4</span>
+            <span class="stat-lbl">Vencord Userplugin</span>
+          </div>
+          <div class="hero-stat-box">
+            <span class="stat-val">CSV & WH</span>
+            <span class="stat-lbl">Anlık Dışa Aktarım</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE: PRODUCT MODULES DECK -->
+      <div class="deck-stage" id="deckStage">
+        <div class="deck-track" id="deckTrack">
+          <!-- CARD 01: DISCORD SCRAPER -->
+          <div class="deck-card active" data-index="0" data-accent="mono" onclick="selectDeckCard(0)">
+            <div class="card-top-meta">
+              <span>MODÜL 01</span>
+              <span class="card-tag">DISCORD</span>
+            </div>
+
+            <div class="card-visual">
+              <div class="card-visual-grid"></div>
+              <div class="badge-orbit">
+                <img src="/badges/discord_staff.png" alt="Staff" title="Discord Staff" />
+                <img src="/badges/early_supporter.png" alt="Early" title="Early Supporter" />
+                <img src="/badges/golden_bug_hunter.png" alt="Bug Hunter" title="Golden Bug Hunter" />
+                <img src="/badges/early_bot_developer.png" alt="Dev" title="Early Verified Bot Dev" />
+                <img src="/badges/opal.png" alt="Opal" title="Nitro Opal" />
+                <img src="/badges/ruby.png" alt="Ruby" title="Nitro Ruby" />
+                <img src="/badges/booster_24m.png" alt="24m" title="24+ Ay Booster" />
+              </div>
+              <span style="font-family:var(--font-mono); font-size:11px; color:#a1a1aa; z-index:2; letter-spacing:0.08em;">Rozet & Kullanıcı Tarama</span>
+            </div>
+
+            <div class="card-info">
+              <h3>Discord Rozet & Username Tarayıcı</h3>
+              <p>Sunuculardaki Staff, Early Supporter, Opal, Ruby, 24+ Ay Booster ve nadir rozetli hesapları saniyeler içinde tespit eder ve raporlar.</p>
+            </div>
+
+            <div class="card-bottom-bar">
+              <div class="card-index">01 <small>/ 04</small></div>
+              <button class="card-launch-btn" onclick="event.stopPropagation(); launchTool('discord')">Aracı Aç →</button>
+            </div>
+          </div>
+
+          <!-- CARD 02: ROBLOX VALUE SCANNER -->
+          <div class="deck-card" data-index="1" data-accent="mono" onclick="selectDeckCard(1)">
+            <div class="card-top-meta">
+              <span>MODÜL 02</span>
+              <span class="card-tag">ROBLOX</span>
+            </div>
+
+            <div class="card-visual">
+              <div class="card-visual-grid"></div>
+              <div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:10px;">
+                <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+                  <span class="b-pill" style="border-color:rgba(255,255,255,0.18); color:#ffffff;">Korblox</span>
+                  <span class="b-pill" style="border-color:rgba(255,255,255,0.18); color:#ffffff;">Headless</span>
+                  <span class="b-pill" style="border-color:rgba(255,255,255,0.18); color:#ffffff;">Dominus</span>
+                </div>
+                <div style="font-family:var(--font-display); font-size:28px; font-weight:700; color:#ffffff; letter-spacing:-0.03em;">500,000+ R$</div>
+                <span style="font-family:var(--font-mono); font-size:11px; color:#a1a1aa; letter-spacing:0.06em;">Envanter & Discord Eşleştirme</span>
+              </div>
+            </div>
+
+            <div class="card-info">
+              <h3>Roblox Değerli Hesap Tarayıcı</h3>
+              <p>Oyun sunucuları ve topluluklardaki Korblox, Headless, Valkyrie, Limited sahipleri ile profillerindeki Discord hesaplarını otomatik tespit eder.</p>
+            </div>
+
+            <div class="card-bottom-bar">
+              <div class="card-index">02 <small>/ 04</small></div>
+              <button class="card-launch-btn" onclick="event.stopPropagation(); launchTool('roblox')">Aracı Aç →</button>
+            </div>
+          </div>
+
+          <!-- CARD 03: VENCORD USERPLUGINS HUB -->
+          <div class="deck-card" data-index="2" data-accent="mono" onclick="selectDeckCard(2)">
+            <div class="card-top-meta">
+              <span>MODÜL 03</span>
+              <span class="card-tag">VENCORD</span>
+            </div>
+
+            <div class="card-visual">
+              <div class="card-visual-grid"></div>
+              <div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:11px; padding:0 14px;">
+                <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;">
+                  <span class="b-pill" style="border-color:rgba(255,255,255,0.18); color:#ffffff;">vacx-fakeyt</span>
+                  <span class="b-pill" style="border-color:rgba(255,255,255,0.18); color:#ffffff;">vacx-yayin</span>
+                  <span class="b-pill" style="border-color:rgba(255,255,255,0.18); color:#ffffff;">SelfBadges</span>
+                  <span class="b-pill" style="border-color:rgba(255,255,255,0.18); color:#ffffff;">CopyProfile</span>
+                </div>
+                <span style="font-family:var(--font-mono); font-size:11px; color:#a1a1aa; letter-spacing:0.06em;">Otomatik Kurulum Paketi (.ZIP)</span>
+              </div>
+            </div>
+
+            <div class="card-info">
+              <h3>Vencord Eklenti Paketi</h3>
+              <p>Fake Yönetici & Gizli Odalar, Yayın Simgesi, 37 Resmi Rozet Yöneticisi ve Profil Klonlayıcı eklentilerini hazır kurulumlu indirin.</p>
+            </div>
+
+            <div class="card-bottom-bar">
+              <div class="card-index">03 <small>/ 04</small></div>
+              <a href="#vencord" class="card-launch-btn" style="text-decoration:none;" onclick="event.stopPropagation();">İncele →</a>
+            </div>
+          </div>
+
+          <!-- CARD 04: DISCORD.GG/ANONIM COMMUNITY -->
+          <div class="deck-card" data-index="3" data-accent="mono" onclick="selectDeckCard(3)">
+            <div class="card-top-meta">
+              <span>MODÜL 04</span>
+              <span class="card-tag">TOPLULUK</span>
+            </div>
+
+            <div class="card-visual">
+              <div class="card-visual-grid"></div>
+              <div style="position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:12px;">
+                <img src="/logo.png" alt="Early.Host" style="width:64px; height:64px; object-fit:contain;" />
+                <span style="font-family:var(--font-mono); font-size:14px; font-weight:600; color:#ffffff;">discord.gg/anonim</span>
+              </div>
+            </div>
+
+            <div class="card-info">
+              <h3>Resmi Discord Topluluğu</h3>
+              <p>Güncellemeler, yeni araçlar, sunucu tarama panelleri ve lisans desteği için resmi Discord sunucumuza katılın.</p>
+            </div>
+
+            <div class="card-bottom-bar">
+              <div class="card-index">04 <small>/ 04</small></div>
+              <a href="https://discord.gg/anonim" target="_blank" rel="noopener" class="card-launch-btn" style="text-decoration:none;" onclick="event.stopPropagation();">Katıl →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deck Navigation Controls -->
+        <div class="deck-controls">
+          <button class="deck-arrow" onclick="stepDeck(-1)" aria-label="Önceki">←</button>
+          <div class="deck-dots" id="deckDots">
+            <span class="deck-dot active" onclick="selectDeckCard(0)"></span>
+            <span class="deck-dot" onclick="selectDeckCard(1)"></span>
+            <span class="deck-dot" onclick="selectDeckCard(2)"></span>
+            <span class="deck-dot" onclick="selectDeckCard(3)"></span>
+          </div>
+          <button class="deck-arrow" onclick="stepDeck(1)" aria-label="Sonraki">→</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= INTEGRATED LIVE WORKSPACE ================= -->
+    <section id="workspace" class="workspace-section reveal">
+      <div class="section-header">
+        <div class="section-header-left">
+          <span class="sec-code">ARAÇ MERKEZİ</span>
+          <h2>Canlı Çalışma Konsolu</h2>
+        </div>
+      </div>
+
+      <div class="tool-terminal">
+        <div class="terminal-topbar">
+          <div class="terminal-left-group">
+            <div class="engine-tabs">
+              <button class="engine-tab active" id="tabBtnDiscord" onclick="switchWorkspace('discord')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028z"/>
+                </svg>
+                <span>Discord Tarayıcı</span>
+              </button>
+
+              <button class="engine-tab" id="tabBtnRoblox" onclick="switchWorkspace('roblox')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                <span>Roblox Tarayıcı</span>
+              </button>
+
+              <button class="engine-tab" id="tabBtnOsint" onclick="switchWorkspace('osint')">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <span>OSINT, URL & Token Araçları</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="terminal-right-meta">
+            <span class="terminal-uri" id="terminalTitle" style="display:none;"></span>
+            <span class="live-chip" id="engineStatusText"><span class="live-pulse"></span> Sistem Aktif</span>
+          </div>
+        </div>
+
+        <!-- ==================== ENGINE 1: DISCORD SCRAPER ==================== -->
+        <div id="panelDiscord" class="terminal-body">
+
+          <!-- STEP 1: CONNECTION & CREDENTIALS CARD -->
+          <div class="pro-section-card">
+            <div class="pro-sec-header">
+              <div class="pro-sec-title">
+                <span class="step-tag">01</span>
+                <div>
+                  <h4>Kimlik & Hedef Sunucu Bağlantısı</h4>
+                  <p>Tarama yapılacak Discord hesabını bağlayın ve hedef sunucu bilgisini belirleyin.</p>
+                </div>
+              </div>
+              <span id="dcConnectedUser" class="connected-pill hidden"></span>
+            </div>
+
+            <div class="grid-3">
+              <div class="pro-field">
+                <div class="pro-label-row">
+                  <label for="dcTokenInput">Discord Hesap Tokeni</label>
+                  <button type="button" class="inline-action-btn" onclick="fetchUserGuilds()" id="loadGuildsBtn">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                    Sunucularımı Çek
+                  </button>
+                </div>
+                <div class="pro-input-group">
+                  <span class="input-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  </span>
+                  <input type="password" id="dcTokenInput" class="pro-input has-icon has-suffix" placeholder="Token yapıştırın (.env tanımlıysa boş kalabilir)" oninput="saveDcConfig()" />
+                  <button type="button" class="input-eye-btn" onclick="toggleInputVisibility('dcTokenInput', this)" title="Göster / Gizle">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="pro-field">
+                <div class="pro-label-row">
+                  <label for="dcGuildIdInput">Hedef Sunucu ID (Guild ID)</label>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <div class="pro-input-group" style="flex:1;">
+                    <span class="input-icon">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    </span>
+                    <input type="text" id="dcGuildIdInput" class="pro-input has-icon" placeholder="Örn: 1015060230222131221" />
+                  </div>
+                  <select id="dcGuildSelect" class="pro-input hidden" style="max-width:195px;" onchange="onSelectDiscordGuild()">
+                    <option value="">Sunucu Seç...</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="pro-field">
+                <div class="pro-label-row">
+                  <label for="dcWebhookInput">Discord Webhook URL <span class="opt-tag">İsteğe Bağlı</span></label>
+                </div>
+                <div class="pro-input-group">
+                  <span class="input-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </span>
+                  <input type="text" id="dcWebhookInput" class="pro-input has-icon" placeholder="https://discord.com/api/webhooks/..." oninput="saveDcConfig()" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: BADGE MATRIX SELECTOR CARD -->
+          <div class="pro-section-card">
+            <div class="pro-sec-header">
+              <div class="pro-sec-title">
+                <span class="step-tag">02</span>
+                <div>
+                  <h4>Hedef Rozet Matrisi</h4>
+                  <p>Sunucuda taranacak özel rozet grubunu seçin (16 özel filtre hazır).</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="chips-wrap" id="dcBadgeChips">
+              <div class="chip active" data-badge="all" onclick="selectDcBadge(this)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Tüm Nadir Rozetler
+              </div>
+              <div class="chip" data-badge="staff" onclick="selectDcBadge(this)"><img src="/badges/discord_staff.png" alt=""/> Discord Staff</div>
+              <div class="chip" data-badge="early" onclick="selectDcBadge(this)"><img src="/badges/early_supporter.png" alt=""/> Early Supporter</div>
+              <div class="chip" data-badge="dev" onclick="selectDcBadge(this)"><img src="/badges/early_bot_developer.png" alt=""/> Early Bot Dev</div>
+              <div class="chip" data-badge="bughunter" onclick="selectDcBadge(this)"><img src="/badges/golden_bug_hunter.png" alt=""/> Bug Hunter</div>
+              <div class="chip" data-badge="moderator" onclick="selectDcBadge(this)"><img src="/badges/moderator_alumni.png" alt=""/> Certified Mod</div>
+              <div class="chip" data-badge="hypesquad" onclick="selectDcBadge(this)"><img src="/badges/hypesquad_events.png" alt=""/> HypeSquad Events</div>
+              <div class="chip" data-badge="partner" onclick="selectDcBadge(this)"><img src="/badges/partnered_server_owner.png" alt=""/> Partner</div>
+              <div class="chip" data-badge="opal" onclick="selectDcBadge(this)"><img src="/badges/opal.png" alt=""/> Nitro Opal (6y+)</div>
+              <div class="chip" data-badge="ruby" onclick="selectDcBadge(this)"><img src="/badges/ruby.png" alt=""/> Nitro Ruby (5y)</div>
+              <div class="chip" data-badge="zumrut" onclick="selectDcBadge(this)"><img src="/badges/emerald.png" alt=""/> Emerald (3y)</div>
+              <div class="chip" data-badge="diamond" onclick="selectDcBadge(this)"><img src="/badges/diamond.png" alt=""/> Diamond (2y)</div>
+              <div class="chip" data-badge="platinum" onclick="selectDcBadge(this)"><img src="/badges/platinum.png" alt=""/> Platinum (1y)</div>
+              <div class="chip" data-badge="24ay" onclick="selectDcBadge(this)"><img src="/badges/booster_24m.png" alt=""/> 24+ Ay Booster</div>
+              <div class="chip" data-badge="booster" onclick="selectDcBadge(this)"><img src="/badges/booster_12m.png" alt=""/> Tüm Boosterlar</div>
+              <div class="chip" data-badge="quest" onclick="selectDcBadge(this)"><img src="/badges/quest.png" alt=""/> Quest Rozeti</div>
+            </div>
+          </div>
+
+          <!-- COMMAND ACTION BAR -->
+          <div class="pro-command-bar">
+            <label class="pro-switch">
+              <input type="checkbox" id="dcAutoWebhookChk" onchange="saveDcConfig()" />
+              <span class="switch-slider"></span>
+              <span class="switch-text">Tarama tamamlandığında raporu otomatik Webhook'a gönder</span>
+            </label>
+
+            <div class="btn-group">
+              <button class="tool-btn run" id="dcScanBtn" onclick="startDiscordScan()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                SUNUCUYU TARA
+              </button>
+              <button class="tool-btn" onclick="sendLastDcScanToWebhook()" id="dcManualWebhookBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Webhook'a Gönder
+              </button>
+              <button class="tool-btn" onclick="copyDiscordResults()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Kopyala
+              </button>
+              <button class="tool-btn" onclick="exportDiscordResults('csv')">
+                CSV Dışa Aktar
+              </button>
+              <a href="/api/download/discord-exe" class="tool-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                EXE İndir
+              </a>
+            </div>
+          </div>
+
+          <!-- Live SSE Progress Box -->
+          <div id="dcProgressBox" class="progress-box hidden">
+            <div class="progress-head">
+              <span id="dcProgressMsg">Sunucuya bağlanılıyor...</span>
+              <span id="dcProgressPct">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="dcProgressFill"></div>
+            </div>
+          </div>
+
+          <!-- KPI STAT CARDS -->
+          <div class="kpi-grid kpi-4">
+            <div class="kpi-card">
+              <span class="kpi-label">HEDEF SUNUCU</span>
+              <strong class="kpi-value" id="dcStatGuild">—</strong>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">TARANAN ÜYE</span>
+              <strong class="kpi-value" id="dcStatScanned">0</strong>
+            </div>
+            <div class="kpi-card highlight">
+              <span class="kpi-label">BULUNAN NADİR HESAP</span>
+              <strong class="kpi-value" id="dcStatFound">0</strong>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">AKTİF FİLTRE</span>
+              <strong class="kpi-value sm" id="dcStatFilter">Tüm Nadir Rozetler</strong>
+            </div>
+          </div>
+
+          <!-- Discord Results Grid -->
+          <div id="dcResultsArea">
+            <div class="pro-empty-state">
+              <div class="radar-ring">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8">
+                  <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+                </svg>
+              </div>
+              <h5>Discord Tarama Motoru Hazır</h5>
+              <p>Hesap tokeninizi ve hedef <b>Sunucu ID</b> bilgisini girip <b>SUNUCUYU TARA</b> butonuna tıkladığınızda nadir rozetli hesaplar profil bağlantıları ve orijinal rozetleriyle burada listelenir.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== ENGINE 2: ROBLOX & DISCORD LINKED SCANNER ==================== -->
+        <div id="panelRoblox" class="terminal-body hidden">
+          <!-- SEGMENTED SUB-NAVIGATION -->
+          <div class="pro-subnav">
+            <button class="pro-subtab active" data-rsub="guild" onclick="openRbxSubTab('guild')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Discord Sunucusundan Roblox Tespiti
+            </button>
+            <button class="pro-subtab" data-rsub="manual" onclick="openRbxSubTab('manual')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Roblox İsim / ID Sorgula
+            </button>
+            <button class="pro-subtab" data-rsub="scan" onclick="openRbxSubTab('scan')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+              Oyun & Topluluk Tarayıcı
+            </button>
+            <button class="pro-subtab" data-rsub="settings" onclick="openRbxSubTab('settings')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Webhook & API Ayarları
+            </button>
+          </div>
+
+          <!-- ROBLOX SUBTAB 1 (PRIMARY): DISCORD GUILD -> LINKED ROBLOX ACCOUNTS -->
+          <div id="rbxSub-guild">
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">01</span>
+                  <div>
+                    <h4>Discord Sunucusunda Roblox Hesabı Bağlı Üyeleri Bul</h4>
+                    <p>Discord sunucu ID'sini girin; sunucuda Discord profilini Roblox'a bağlayan tüm üyelerin hem Roblox envanteri hem de Discord hesabı yan yana çıkar.</p>
+                  </div>
+                </div>
+                <span id="rbxDcConnectedUser" class="connected-pill hidden"></span>
+              </div>
+
+              <div class="grid-4">
+                <div class="pro-field">
+                  <div class="pro-label-row">
+                    <label for="rbxDcTokenInput">Discord Hesap Tokeni</label>
+                    <button type="button" class="inline-action-btn" onclick="fetchRbxUserGuilds()" id="rbxLoadGuildsBtn">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                      Sunucularımı Çek
+                    </button>
+                  </div>
+                  <div class="pro-input-group">
+                    <span class="input-icon">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </span>
+                    <input type="password" id="rbxDcTokenInput" class="pro-input has-icon has-suffix" placeholder="Discord Token yapıştırın" oninput="syncRbxDcToken()" />
+                    <button type="button" class="input-eye-btn" onclick="toggleInputVisibility('rbxDcTokenInput', this)" title="Göster / Gizle">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="pro-field">
+                  <div class="pro-label-row">
+                    <label for="rbxDcGuildIdInput">Hedef Discord Sunucu ID</label>
+                  </div>
+                  <div style="display:flex; gap:8px;">
+                    <div class="pro-input-group" style="flex:1;">
+                      <span class="input-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                      </span>
+                      <input type="text" id="rbxDcGuildIdInput" class="pro-input has-icon" placeholder="Örn: 1015060230222131221" />
+                    </div>
+                    <select id="rbxDcGuildSelect" class="pro-input hidden" style="max-width:175px;" onchange="onSelectRbxDiscordGuild()">
+                      <option value="">Sunucu Seç...</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="pro-field">
+                  <div class="pro-label-row"><label for="rbxGuildScanLimit">Üye Tarama Limiti</label></div>
+                  <select id="rbxGuildScanLimit" class="pro-input">
+                    <option value="150">Hızlı Tarama (150 Öncelikli Üye)</option>
+                    <option value="300" selected>Dengeli Tarama (300 Üye)</option>
+                    <option value="600">Derin Tarama (600 Üye)</option>
+                    <option value="0">Tam Sunucu Taraması (Tümü)</option>
+                  </select>
+                </div>
+
+                <div class="pro-field">
+                  <div class="pro-label-row"><label for="rbxGuildMinVal">Minimum Değer (Robux)</label></div>
+                  <div class="pro-input-group">
+                    <span class="input-icon" style="color:var(--green); font-family:var(--font-mono); font-weight:700; font-size:11px;">R$</span>
+                    <input type="number" id="rbxGuildMinVal" class="pro-input has-icon" value="0" step="500" min="0" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="pro-command-bar" style="margin-top:16px;">
+                <div class="switches-wrap">
+                  <label class="pro-switch">
+                    <input type="checkbox" id="rbxIncludeNickChk" checked />
+                    <span class="switch-slider"></span>
+                    <span class="switch-text">Bloxlink / RoVer Sunucu İsimlerini de Çözümle</span>
+                  </label>
+                </div>
+
+                <div class="btn-group">
+                  <button class="tool-btn run" id="rbxGuildScanBtn" onclick="runRbxGuildScan()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    SUNUCUDAKİ ROBLOX HESAPLARINI TARA
+                  </button>
+                  <button class="tool-btn" onclick="copyAllRbx()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Kopyala
+                  </button>
+                  <button class="tool-btn" onclick="exportRobloxResults('csv')">
+                    CSV İndir
+                  </button>
+                  <button class="tool-btn danger-hover" onclick="clearRbx()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Temizle
+                  </button>
+                </div>
+              </div>
+
+              <!-- Live SSE Progress Box for Guild Roblox Scan -->
+              <div id="rbxGuildProgressBox" class="progress-box hidden" style="margin-top:14px;">
+                <div class="progress-head">
+                  <span id="rbxGuildProgressMsg">Discord sunucusuna bağlanılıyor...</span>
+                  <span id="rbxGuildProgressPct">0%</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" id="rbxGuildProgressFill"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROBLOX SUBTAB 2: MANUAL LOOKUP -->
+          <div id="rbxSub-manual" class="hidden">
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">ID</span>
+                  <div>
+                    <h4>Toplu Roblox Kullanıcı Adı & ID Sorgulama</h4>
+                    <p>Virgülle veya alt alta Roblox kullanıcı adları ya da ID'leri yazarak anında Robux envanter değerlerini ve nadir eşyalarını çekin.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="pro-field" style="margin-bottom:16px;">
+                <textarea id="rbxManualInput" class="pro-input" rows="4" placeholder="Örn: Shedletsky, BuilderMan, Stickmasterluke..."></textarea>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="tool-btn run" id="rbxManualBtn" onclick="runRbxManual()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  HESAPLARI SORGULA
+                </button>
+                <button class="tool-btn" onclick="copyAllRbx()">Sonuçları Kopyala</button>
+                <button class="tool-btn danger-hover" onclick="clearRbx()">Temizle</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROBLOX SUBTAB 3: GAME & COMMUNITY SCAN -->
+          <div id="rbxSub-scan" class="hidden">
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">01</span>
+                  <div>
+                    <h4>Oyun, Havuz & Robux Eşiği</h4>
+                    <p>Taranacak Roblox oyununu, oyuncu havuzunu ve minimum envanter değerini seçin.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid-4">
+                <div class="pro-field">
+                  <div class="pro-label-row"><label for="rbxPresetSelect">Hazır Oyun Seç</label></div>
+                  <select id="rbxPresetSelect" class="pro-input" onchange="onRbxPresetChange()"></select>
+                </div>
+
+                <div class="pro-field">
+                  <div class="pro-label-row"><label for="rbxPlaceId">Place ID</label></div>
+                  <div class="pro-input-group">
+                    <span class="input-icon">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+                    </span>
+                    <input type="number" id="rbxPlaceId" class="pro-input has-icon" value="12699642568" />
+                  </div>
+                </div>
+
+                <div class="pro-field">
+                  <div class="pro-label-row"><label for="rbxRegion">Bölge & Oyuncu Havuzu</label></div>
+                  <select id="rbxRegion" class="pro-input">
+                    <option value="all">Tümü + TR Türkiye (Önerilen)</option>
+                    <option value="tr">Sadece TR Türkiye Oyuncuları</option>
+                    <option value="game">Sadece Seçili Oyunun Topluluğu</option>
+                    <option value="traders">Global Zengin Takasçılar</option>
+                  </select>
+                </div>
+
+                <div class="pro-field">
+                  <div class="pro-label-row"><label for="rbxMinValue">Minimum Değer (Robux)</label></div>
+                  <div class="pro-input-group">
+                    <span class="input-icon" style="color:var(--green); font-family:var(--font-mono); font-weight:700; font-size:11px;">R$</span>
+                    <input type="number" id="rbxMinValue" class="pro-input has-icon" value="10000" step="1000" min="0" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="pro-command-bar" style="margin-top:16px;">
+                <div class="pro-input-group" style="width:270px; max-width:100%;">
+                  <span class="input-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  </span>
+                  <input type="text" id="rbxCustomKeyword" class="pro-input has-icon sm" placeholder="Özel eşya adı veya Asset ID..." />
+                </div>
+
+                <div class="btn-group">
+                  <button class="tool-btn run" id="rbxScanBtn" onclick="runRbxScan()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    OYUN TARAMASINI BAŞLAT
+                  </button>
+                  <button class="tool-btn" id="rbxMoreBtn" onclick="runRbxScan()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                    Sonraki Sayfa
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ROBLOX SUBTAB 4: SETTINGS -->
+          <div id="rbxSub-settings" class="hidden">
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">WH</span>
+                  <div>
+                    <h4>Otomatik Discord Webhook Bildirimi</h4>
+                    <p>Bulunan bağlı Roblox ve Discord hesaplarını sade ve çizgisiz olarak kanalınıza iletin.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                <div class="pro-input-group" style="flex:1; min-width:260px;">
+                  <span class="input-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  </span>
+                  <input type="text" id="rbxWebhookInput" class="pro-input has-icon" placeholder="https://discord.com/api/webhooks/..." oninput="saveRbxCfg()" />
+                </div>
+                <button class="tool-btn" onclick="testRbxWebhook()">Test Gönder</button>
+                <label class="pro-switch">
+                  <input type="checkbox" id="rbxAutoWebhook" onchange="saveRbxCfg()" />
+                  <span class="switch-slider"></span>
+                  <span class="switch-text">Bulunanları otomatik at</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">API</span>
+                  <div>
+                    <h4>İsteğe Bağlı Bloxlink / RoVer API Anahtarları</h4>
+                    <p>Discord Sunucu Tarayıcısı API anahtarı gerektirmez; yalnızca oyun tarayıcısında ek çözümleme için kullanabilirsiniz.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid-4" style="margin-bottom:14px;">
+                <div class="pro-field">
+                  <div class="pro-label-row"><label>Discord Sunucu ID'leri</label></div>
+                  <input type="text" id="rbxCfgGuildId" class="pro-input" placeholder="Sunucu ID..." oninput="saveRbxCfg()" />
+                </div>
+                <div class="pro-field">
+                  <div class="pro-label-row"><label>Bloxlink v4 API Key</label></div>
+                  <input type="password" id="rbxCfgBloxlink" class="pro-input" placeholder="Opsiyonel" oninput="saveRbxCfg()" />
+                </div>
+                <div class="pro-field">
+                  <div class="pro-label-row"><label>RoVer v2 API Key</label></div>
+                  <input type="password" id="rbxCfgRover" class="pro-input" placeholder="Opsiyonel" oninput="saveRbxCfg()" />
+                </div>
+                <div class="pro-field">
+                  <div class="pro-label-row"><label>Discord Bot Token</label></div>
+                  <input type="password" id="rbxCfgBotToken" class="pro-input" placeholder="Opsiyonel" oninput="saveRbxCfg()" />
+                </div>
+              </div>
+
+              <button class="tool-btn" onclick="testRbxDiscordApis()">API Bağlantısını Test Et</button>
+              <div id="rbxApiTestBox" class="hidden" style="margin-top:14px; padding:14px; border-radius:10px; background:#030306; border:1px solid var(--border-strong); font-size:12.5px;"></div>
+            </div>
+          </div>
+
+          <!-- SHARED ITEM & RESULT FILTER BAR -->
+          <div class="pro-section-card" style="padding:16px 20px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+              <div class="chips-wrap" id="rbxPills">
+                <div class="chip active" data-rf="any" onclick="toggleRbxPill(this)">Tümü</div>
+                <div class="chip" data-rf="korblox" onclick="toggleRbxPill(this)">Korblox</div>
+                <div class="chip" data-rf="headless" onclick="toggleRbxPill(this)">Headless</div>
+                <div class="chip" data-rf="valkyrie" onclick="toggleRbxPill(this)">Valkyrie</div>
+                <div class="chip" data-rf="dominus" onclick="toggleRbxPill(this)">Dominus</div>
+                <div class="chip" data-rf="sshf_stitch" onclick="toggleRbxPill(this)">SSHF / Stitchface</div>
+                <div class="chip" data-rf="limiteds" onclick="toggleRbxPill(this)">Limited Koleksiyon</div>
+              </div>
+
+              <div class="switches-wrap">
+                <label class="pro-switch">
+                  <input type="checkbox" id="rbxOnlyDiscord" onchange="renderRbxResults()" />
+                  <span class="switch-slider"></span>
+                  <span class="switch-text">Sadece Discord Bağlı</span>
+                </label>
+                <label class="pro-switch">
+                  <input type="checkbox" id="rbxOnlyOnline" onchange="renderRbxResults()" />
+                  <span class="switch-slider"></span>
+                  <span class="switch-text">Sadece Aktifler</span>
+                </label>
+                <label class="pro-switch">
+                  <input type="checkbox" id="rbxOnlyTr" onchange="renderRbxResults()" />
+                  <span class="switch-slider"></span>
+                  <span class="switch-text">Sadece TR</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Roblox KPI Stat Cards -->
+          <div class="kpi-grid kpi-4">
+            <div class="kpi-card">
+              <span class="kpi-label">HEDEF KAYNAK / SUNUCU</span>
+              <strong class="kpi-value sm"><span id="rbxStatGame">Hazır</span> <small id="rbxStatPlayingWrap" class="hidden" style="color:var(--green); font-weight:600;">(<span id="rbxStatPlaying">-</span>)</small></strong>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">TARANAN ÜYE / OYUNCU</span>
+              <strong class="kpi-value" id="rbxStatScanned">0</strong>
+            </div>
+            <div class="kpi-card highlight">
+              <span class="kpi-label">BULUNAN ROBLOX HESABI</span>
+              <strong class="kpi-value" id="rbxStatFound">0</strong>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">BAĞLI DISCORD HESABI</span>
+              <strong class="kpi-value" id="rbxStatDc">0</strong>
+            </div>
+            <span id="rbxStatTr" class="hidden">0</span>
+          </div>
+
+          <!-- Roblox Results Grid -->
+          <div id="rbxResultsArea">
+            <div class="pro-empty-state">
+              <div class="radar-ring">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+              </div>
+              <h5>Discord ↔ Roblox Bağlı Hesap Tarayıcı Hazır</h5>
+              <p>Yukarıya <b>Discord Sunucu ID</b> ve hesap tokeninizi girip <b>SUNUCUDAKİ ROBLOX HESAPLARINI TARA</b> butonuna bastığınızda o sunucuda Roblox hesabı bağlı tüm kişilerin hem Roblox envanteri hem de Discord hesabı düzgün şekilde listelenir.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== ENGINE 3: OSINT, USERNAME SNIPER & WEBHOOK COMMANDER ==================== -->
+        <div id="panelOsint" class="terminal-body hidden">
+          <div class="pro-subnav">
+            <button class="pro-subtab active" data-osub="lookup" onclick="openOsintSubTab('lookup')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Tokensiz ID & Davet Analizi
+            </button>
+            <button class="pro-subtab" data-osub="sniper" onclick="openOsintSubTab('sniper')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
+              Nadir İsim (2L/2C/3C/3L) Sniper
+            </button>
+            <button class="pro-subtab" data-osub="webhook" onclick="openOsintSubTab('webhook')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Webhook Komuta
+            </button>
+            <button class="pro-subtab" data-osub="tokencheck" onclick="openOsintSubTab('tokencheck')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Toplu Token Checker
+            </button>
+            <button class="pro-subtab" data-osub="vanity" onclick="openOsintSubTab('vanity')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Nadir URL (.gg/ 2H/3H/Yıl) Checker
+            </button>
+            <button class="pro-subtab" data-osub="assets" onclick="openOsintSubTab('assets')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Emoji & Varlık İndirici
+            </button>
+          </div>
+
+          <!-- OSINT SUBTAB 1: TOKENLESS DISCORD USER ID & INVITE ANALYZER -->
+          <div id="osintSub-lookup">
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">01</span>
+                  <div>
+                    <h4>Tokensiz Discord Kullanıcı ID & Sunucu Davet Çözümleyici</h4>
+                    <p>Hiçbir token girmeden herhangi bir <b>Discord Kullanıcı ID</b>'sinin (Snowflake) tam açılış tarihini, HD Avatar/Banner görselini, rozetlerini veya <b>discord.gg/...</b> davet linkinin sunucu istatistiklerini çıkarın.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <div class="pro-input-group" style="flex:1; min-width:260px;">
+                  <span class="input-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  </span>
+                  <input type="text" id="osintQueryInput" class="pro-input has-icon" placeholder="Kullanıcı ID (Örn: 154156163737321472) veya discord.gg/anonim yazın..." onkeydown="if(event.key==='Enter') runOsintLookup()" />
+                </div>
+                <button class="tool-btn run" id="osintLookupBtn" onclick="runOsintLookup()">HEDEFİ ANALİZ ET →</button>
+              </div>
+            </div>
+
+            <div id="osintResultArea" style="margin-top:16px;">
+              <div class="pro-empty-state">
+                <div class="radar-ring">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                </div>
+                <h5>OSINT İstihbarat Motoru Beklemede</h5>
+                <p>Bir Discord <b>User ID</b> veya <b>Sunucu Davet Kodu</b> girip sorguladığınızda yüksek çözünürlüklü varlıklar, hesap yaşı ve rozetler anında burada açılır.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- OSINT SUBTAB 2: RARE SHORT USERNAME (2L / 2C / 3L / 3C / 4L / 4C / OG) SNIPER -->
+          <div id="osintSub-sniper" class="hidden">
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">02</span>
+                  <div>
+                    <h4>Nadir Kısa Username (2L · 2C · 3L · 3C · 4L · 4C) Avcısı</h4>
+                    <p>Seçtiğiniz kalıpta yüzlerce kombinasyonu arka planda canlı API ile tarar; dolu olanları otomatik eleyip <b>sadece kullanılmayan (BOŞTA)</b> nadir isimleri şifre çözücü animasyonla ekrana düşürür.</p>
+                  </div>
+                </div>
+                <span id="sniperScanStatPill" class="connected-pill hidden"></span>
+              </div>
+
+              <!-- TACTICAL MODE PILLS -->
+              <div style="margin-bottom:16px;">
+                <div class="pro-label-row" style="margin-bottom:8px;">
+                  <label>Nadir İsim Kalıbı Seçin</label>
+                </div>
+                <div class="chips-wrap" id="sniperModeChips">
+                  <div class="chip" data-smode="2l" onclick="selectSniperMode(this)">2L <small style="opacity:0.65;">(2 Harf · ab)</small></div>
+                  <div class="chip" data-smode="2c" onclick="selectSniperMode(this)">2C <small style="opacity:0.65;">(2 Karakter · x9)</small></div>
+                  <div class="chip" data-smode="3l" onclick="selectSniperMode(this)">3L <small style="opacity:0.65;">(3 Harf · vqx)</small></div>
+                  <div class="chip active" data-smode="3c" onclick="selectSniperMode(this)">3C <small style="opacity:0.65;">(3 Karakter · k7x)</small></div>
+                  <div class="chip" data-smode="4l" onclick="selectSniperMode(this)">4L <small style="opacity:0.65;">(4 Harf · zora)</small></div>
+                  <div class="chip" data-smode="4c" onclick="selectSniperMode(this)">4C <small style="opacity:0.65;">(4 Karakter · v_9x)</small></div>
+                  <div class="chip" data-smode="og" onclick="selectSniperMode(this)">5L OG <small style="opacity:0.65;">(Okunabilir)</small></div>
+                </div>
+              </div>
+
+              <div class="grid-3" style="margin-bottom:16px;">
+                <div class="pro-field">
+                  <div class="pro-label-row"><label>Hedef Platform Havuzu</label></div>
+                  <select id="sniperPlatform" class="pro-input">
+                    <option value="auto" selected>Akıllı Çoklu Tarama (Discord + Steam + GitHub + Roblox)</option>
+                    <option value="discord">Discord Kısa Kod & Handle Havuzu</option>
+                    <option value="steam">Steam Özel Profil ID (/id/...)</option>
+                    <option value="github">GitHub Kısa Kullanıcı Adı</option>
+                    <option value="roblox">Roblox Kullanıcı Adı (3C+)</option>
+                  </select>
+                </div>
+
+                <div class="pro-field" style="grid-column: span 2;">
+                  <div class="pro-label-row"><label>Özel İsim Kontrolü <span class="opt-tag">Boş Bırakılırsa Otomatik Boş İsim Bulur</span></label></div>
+                  <input type="text" id="sniperCustomList" class="pro-input" placeholder="Kendi isimlerinizi test etmek isterseniz virgülle yazın (Örn: qx, v9, k7x)..." />
+                </div>
+              </div>
+
+              <div class="pro-command-bar" style="padding:14px 18px;">
+                <label class="pro-switch">
+                  <input type="checkbox" id="sniperOnlyAvailChk" checked />
+                  <span class="switch-slider"></span>
+                  <span class="switch-text">Sadece <b>Kullanılmayan (BOŞTA)</b> İsimleri Ekrana Çıkar</span>
+                </label>
+
+                <div class="btn-group">
+                  <button class="tool-btn run" id="sniperRunBtn" onclick="runUsernameSniper()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    BOŞTA İSİMLERİ AVLA
+                  </button>
+                  <button class="tool-btn" onclick="copyAvailableSniperNames()">Bulunanları Kopyala</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="sniperResultArea" style="margin-top:16px;">
+              <div class="pro-empty-state">
+                <div class="radar-ring">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+                </div>
+                <h5>2L / 2C / 3C / 3L Sniper Hazır</h5>
+                <p>Yukarıdan <b>2L, 2C, 3L, 3C, 4L</b> veya <b>4C</b> seçip <b>BOŞTA İSİMLERİ AVLA</b> butonuna basın; sistem arka planda onlarca kombinasyonu tarayıp sadece alınmamış boş isimleri animasyonla ekrana dizecektir.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- OSINT SUBTAB 3: WEBHOOK COMMANDER & EMBED BUILDER -->
+          <div id="osintSub-webhook" class="hidden">
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">03</span>
+                  <div>
+                    <h4>Discord Webhook Analiz, Zengin Embed Gönderici & İmha Aracı</h4>
+                    <p>Bir Webhook URL'sinin hangi sunucu/kanala ait olduğunu inceleyin, özel tasarımlı Embed mesajı gönderin veya sızdırılmış/spam yapan bir Webhook'u tek tıkla silin.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pro-field" style="margin-bottom:16px;">
+                <div class="pro-label-row"><label>Hedef Discord Webhook URL</label></div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                  <input type="text" id="whCmdUrl" class="pro-input" style="flex:1; min-width:260px;" placeholder="https://discord.com/api/webhooks/..." />
+                  <button class="tool-btn" onclick="inspectTargetWebhook()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    Webhook'u İncele
+                  </button>
+                  <button class="tool-btn danger-hover" onclick="deleteTargetWebhook()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Webhook'u İmha Et (Sil)
+                  </button>
+                </div>
+              </div>
+
+              <div id="whInspectOutput" class="hidden" style="margin-bottom:16px; padding:14px 16px; border-radius:12px; background:#000000; border:1px solid rgba(255,255,255,0.14);"></div>
+
+              <div class="grid-3" style="margin-bottom:14px;">
+                <div class="pro-field">
+                  <div class="pro-label-row"><label>Görünen Bot Adı</label></div>
+                  <input type="text" id="whBotName" class="pro-input" value="EARLY.HOST" />
+                </div>
+                <div class="pro-field">
+                  <div class="pro-label-row"><label>Embed Başlığı</label></div>
+                  <input type="text" id="whEmbedTitle" class="pro-input" placeholder="Örn: Sistem Duyurusu" />
+                </div>
+                <div class="pro-field">
+                  <div class="pro-label-row"><label>Embed Görsel URL <span class="opt-tag">Opsiyonel</span></label></div>
+                  <input type="text" id="whEmbedImg" class="pro-input" placeholder="https://..." />
+                </div>
+              </div>
+
+              <div class="pro-field" style="margin-bottom:16px;">
+                <div class="pro-label-row"><label>Mesaj / Embed Açıklaması</label></div>
+                <textarea id="whEmbedDesc" class="pro-input" rows="3" placeholder="Kanala gönderilecek duyuru veya mesaj içeriğini yazın..."></textarea>
+              </div>
+
+              <button class="tool-btn run" id="whSendCustomBtn" onclick="sendCustomWebhookMsg()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                ZENGİN MESAJI GÖNDER
+              </button>
+            </div>
+          </div>
+
+          <!-- OSINT SUBTAB 4: MULTI-TOKEN CHECKER & INSPECTOR -->
+          <div id="osintSub-tokencheck" class="hidden">
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">04</span>
+                  <div>
+                    <h4>Discord Toplu Token Checker & Hesap Müfettişi</h4>
+                    <p>Alt alta birden fazla kullanıcı veya bot tokeni yapıştırarak hangilerinin aktif olduğunu, <b>Nitro</b> durumunu, <b>2FA / E-Posta / Telefon</b> doğrulamasını, sunucu sayısını ve rozetlerini tek seferde kontrol edin.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pro-field" style="margin-bottom:16px;">
+                <div class="pro-label-row"><label>Kontrol Edilecek Token Listesi <span class="opt-tag">Her satıra 1 token (Maks. 20)</span></label></div>
+                <textarea id="tokenCheckInput" class="pro-input" rows="4" placeholder="Tokenleri alt alta yapıştırın..."></textarea>
+              </div>
+
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="tool-btn run" id="tokenCheckBtn" onclick="runMultiTokenCheck()">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  TOKENLERİ DOĞRULA & ANALİZ ET
+                </button>
+                <button class="tool-btn" onclick="copyValidTokensOnly()">Sadece Çalışan Tokenleri Kopyala</button>
+              </div>
+            </div>
+
+            <div id="tokenCheckResultArea" style="margin-top:16px;">
+              <div class="pro-empty-state">
+                <h5>Token Müfettişi Hazır</h5>
+                <p>Tokenlerinizi girip başlattığınızda çalışan hesaplar Nitro, telefon/mail onayı ve sunucu sayısıyla birlikte listelenir.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- OSINT SUBTAB 5: DISCORD RARE & UNBANNED VANITY URL CHECKER (3C / YEARS / BANNED DETECTOR) -->
+          <div id="osintSub-vanity" class="hidden">
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">05</span>
+                  <div>
+                    <h4>Discord Gerçek Alınabilir URL & "Boşta Ama Banlı" Tespit Sistemi</h4>
+                    <p>Discord artık yeni özel URL atamalarında en az <b>3 Hane</b> şartı koşar (boşta görünen 2 haneli ve kara listedeki URL'ler sunucu ayarında reddedilir). Bu sistem hem <b>%100 sunucunuza koyabileceğiniz (3C, 3L, Yıl, 4L)</b> URL'leri bulur, hem de <b>boşta görünüp banlı/kilitli olan</b> URL'leri açıkça ayırır.</p>
+                  </div>
+                </div>
+                <span id="vanityScanStatPill" class="connected-pill hidden"></span>
+              </div>
+
+              <!-- VANITY PATTERN PILLS -->
+              <div style="margin-bottom:16px;">
+                <div class="pro-label-row" style="margin-bottom:8px;">
+                  <label>Nadir URL Av Kalıbı Seçin</label>
+                </div>
+                <div class="chips-wrap" id="vanityModeChips">
+                  <div class="chip active" data-vmode="2c" onclick="selectVanityMode(this)">2 Hane Sayı+Harf <small style="opacity:0.65;">(c2 · a2 · 8m)</small></div>
+                  <div class="chip" data-vmode="2n" onclick="selectVanityMode(this)">2 Hane Sayı <small style="opacity:0.65;">(12 · 29 · 89)</small></div>
+                  <div class="chip" data-vmode="2l" onclick="selectVanityMode(this)">2 Harf <small style="opacity:0.65;">(qx · vy · dm)</small></div>
+                  <div class="chip" data-vmode="3c" onclick="selectVanityMode(this)">3 Hane Karışık <small style="opacity:0.65;">(9dx · c2x · a29)</small></div>
+                  <div class="chip" data-vmode="3l" onclick="selectVanityMode(this)">3 Harf <small style="opacity:0.65;">(kvw · ydf · qxg)</small></div>
+                  <div class="chip" data-vmode="3n" onclick="selectVanityMode(this)">3 Hane Sayı <small style="opacity:0.65;">(109 · 742)</small></div>
+                  <div class="chip" data-vmode="years" onclick="selectVanityMode(this)">Tarih / Yıl <small style="opacity:0.65;">(1919 · 1929 · 1989)</small></div>
+                  <div class="chip" data-vmode="4l" onclick="selectVanityMode(this)">4 Harf OG <small style="opacity:0.65;">(vora · kiro)</small></div>
+                </div>
+              </div>
+
+              <div class="grid-3" style="margin-bottom:16px;">
+                <div class="pro-field">
+                  <div class="pro-label-row"><label>Gösterim Filtresi</label></div>
+                  <select id="vanityFilterSelect" class="pro-input">
+                    <option value="claimable" selected>Sadece %100 Alınabilir Temiz URL'ler</option>
+                    <option value="banned">Alınabilir + Boşta Olup Banlı/Kilitli Olanlar</option>
+                    <option value="all">Tümünü Göster (Alınabilir + Banlı + Dolu)</option>
+                  </select>
+                </div>
+
+                <div class="pro-field" style="grid-column: span 2;">
+                  <div class="pro-label-row">
+                    <label>Özel URL Listesi Test Et <span class="opt-tag">Boş Bırakılırsa Otomatik Avlar</span></label>
+                  </div>
+                  <div class="pro-input-group">
+                    <span class="input-icon" style="font-family:var(--font-mono); font-size:11px; color:#a1a1aa;">.gg/</span>
+                    <input type="text" id="vanityCodesInput" class="pro-input has-icon" placeholder="Örn: 74, c2, 9dx, 1989, 1921, gore, discord..." onkeydown="if(event.key==='Enter') runVanityCheck()" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="pro-command-bar" style="padding:14px 18px;">
+                <span style="font-size:12.5px; color:#a1a1aa; display:inline-flex; align-items:center; gap:7px;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  <span><b>Bilgi:</b> Manuel kutuya kod yazarsanız her URL'nin <b>Alınabilir</b>, <b>Boşta Ama Banlı</b> veya <b>Dolu</b> durumu ayrı ayrı raporlanır.</span>
+                </span>
+
+                <div class="btn-group">
+                  <button class="tool-btn run" id="vanityCheckBtn" onclick="runVanityCheck()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    GERÇEK ALINABİLİR URL AVLA
+                  </button>
+                  <button class="tool-btn" onclick="copyAvailableVanityCodes()">Alınabilir Olanları Kopyala</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="vanityResultArea" style="margin-top:16px;">
+              <div class="pro-empty-state">
+                <div class="radar-ring">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </div>
+                <h5>Alınabilir & Ban Tespitli URL Checker Hazır</h5>
+                <p><b>3 Hane (9dx)</b>, <b>3 Harf</b>, <b>Tarih/Yıl (1989)</b> veya <b>4 Harf OG</b> seçip başlattığınızda sunucunuza hemen koyabileceğiniz gerçek boş URL'ler yeşil vurguyla; boşta olup Discord tarafından banlanan/kilitlenen URL'ler ise uyarı etiketiyle gösterilir.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- OSINT SUBTAB 6: GUILD EMOJI, STICKER & ASSET STEALER / ZIP DOWNLOADER -->
+          <div id="osintSub-assets" class="hidden">
+            <div class="pro-section-card">
+              <div class="pro-sec-header">
+                <div class="pro-sec-title">
+                  <span class="step-tag">06</span>
+                  <div>
+                    <h4>Sunucu Emoji, Sticker, HD İkon & Banner İndirici (.ZIP)</h4>
+                    <p>Herhangi bir sunucunun <b>discord.gg/...</b> davet linkini veya <b>Sunucu ID</b>'sini girerek yüksek çözünürlüklü İkon, Banner, Splash görsellerini ve tüm özel Emojilerini / Stickerlarını tek tıkla <b>.ZIP arşivi</b> olarak indirin.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid-3" style="margin-bottom:14px;">
+                <div class="pro-field" style="grid-column: span 2;">
+                  <div class="pro-label-row"><label>Hedef Sunucu Davet Linki veya Sunucu ID</label></div>
+                  <input type="text" id="assetTargetInput" class="pro-input" placeholder="Örn: discord.gg/anonim veya 1015060230222131221" onkeydown="if(event.key==='Enter') fetchGuildAssets()" />
+                </div>
+                <div class="pro-field">
+                  <div class="pro-label-row"><label>Üye Tokeni <span class="opt-tag">Gizli Emojiler İçin Opsiyonel</span></label></div>
+                  <input type="password" id="assetTokenInput" class="pro-input" placeholder="Boş bırakılırsa genel/kayıtlı token kullanılır" />
+                </div>
+              </div>
+
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="tool-btn run" id="assetFetchBtn" onclick="fetchGuildAssets()">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  SUNUCU VARLIKLARINI ÇEK
+                </button>
+                <button class="tool-btn hidden" id="assetDownloadZipBtn" onclick="downloadGuildAssetsZip()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Tümünü .ZIP Olarak İndir
+                </button>
+              </div>
+            </div>
+
+            <div id="assetResultArea" style="margin-top:16px;">
+              <div class="pro-empty-state">
+                <h5>Sunucu Varlık & Emoji Çıkarıcı Hazır</h5>
+                <p>Sunucu davet linki veya ID girip sorguladığınızda sunucudaki tüm HD görseller ve hareketli/sabit emojiler önizlemeli olarak listelenir.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION SEPARATOR BEAM -->
+    <div class="section-beam"></div>
+
+    <!-- ================= VENCORD USERPLUGINS MARKETPLACE SECTION ================= -->
+    <section id="vencord" class="vencord-section reveal">
+      <div class="section-header">
+        <div class="section-header-left">
+          <span class="sec-code">EKLENTİ PAKETLERİ</span>
+          <h2>Vencord Eklentileri</h2>
+          <p class="section-subdesc">
+            Özel Vencord eklentilerini tek tıkla <b>otomatik kurucu (.bat + PowerShell)</b> paketiyle hazır halde indirin ve saniyeler içinde kurun.
+          </p>
+        </div>
+
+        <a href="/api/vencord/download?id=all" class="btn-cyber primary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Tüm Eklentileri İndir (.ZIP)
+        </a>
+      </div>
+
+      <!-- 3-STEP READY-TO-INSTALL GUIDE BAR -->
+      <div class="vc-steps-bar">
+        <div class="vc-step-item">
+          <span class="vc-step-num">01</span>
+          <div>
+            <strong>Paketi İndirin & Çıkartın</strong>
+            <p>İstediğiniz eklentinin <b>Hazır Kurulum İndir</b> butonuna basıp ZIP'i klasöre çıkartın.</p>
+          </div>
+        </div>
+        <div class="vc-step-item">
+          <span class="vc-step-num">02</span>
+          <div>
+            <strong>Kurulum_Baslat.bat Çalıştırın</strong>
+            <p>İçindeki kurucu otomatik olarak <code>Vencord\src\userplugins</code> içine kopyalar ve <code>pnpm build</code> yapar.</p>
+          </div>
+        </div>
+        <div class="vc-step-item">
+          <span class="vc-step-num">03</span>
+          <div>
+            <strong>Discord'da Aktif Edin</strong>
+            <p>Discord'da <code>Ctrl + R</code> yapıp <b>Ayarlar → Vencord → Plugins</b> menüsünden eklentiyi açın!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VENCORD PLUGINS 2x2 GRID -->
+      <div class="vc-grid" id="vencordPluginsGrid">
+        <!-- Populated dynamically from /api/vencord/plugins with full descriptions -->
+      </div>
+
+      <!-- EARLY.HOST OBSIDIAN PURE BLACK VENCORD THEME SHOWCASE -->
+      <div class="vc-theme-banner spotlight-card">
+        <div class="vc-theme-left">
+          <span class="vc-pill" style="display:inline-block; margin-bottom:10px;">OFFICIAL VENCORD THEME • OLED #000000</span>
+          <h3>Early.Host Obsidian Pure Black (.theme.css)</h3>
+          <p>Sitemizin saf siyah (Obsidian Monochrome) tasarımını doğrudan Discord uygulamanıza taşıyın. Tüm gri panelleri gerçek `#000000` OLED siyaha ve keskin gümüş çerçevelere dönüştürür.</p>
+        </div>
+        <div class="vc-theme-actions">
+          <a href="/api/vencord/theme" class="vc-dl-btn" style="padding:0 22px; flex:unset;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Temayı İndir (.theme.css)
+          </a>
+          <button type="button" class="vc-sec-btn" style="padding:0 18px; flex:unset;" onclick="copyOnlineThemeLink()">
+            Online Theme Linkini Kopyala
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SOURCE CODE & INSTALLER MODAL -->
+    <div id="vcCodeModal" class="vc-modal hidden" onclick="if(event.target===this) closeVcModal()">
+      <div class="vc-modal-box">
+        <div class="vc-modal-head">
+          <div>
+            <strong id="vcModalTitle">Plugin Kaynak Kodu</strong>
+            <span id="vcModalSub" style="display:block; font-family:var(--font-mono); font-size:11px; color:#71717a; margin-top:2px;"></span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <a id="vcModalDownloadBtn" href="#" class="mini-btn" style="text-decoration:none; padding:6px 12px;">ZIP İndir</a>
+            <button type="button" class="mini-btn" style="padding:6px 12px;" onclick="closeVcModal()">✕ Kapat</button>
+          </div>
+        </div>
+        <div class="vc-modal-tabs" id="vcModalFileTabs"></div>
+        <pre class="vc-modal-code"><code id="vcModalCodeContent">Yükleniyor...</code></pre>
+      </div>
+    </div>
+
+    <!-- SECTION SEPARATOR BEAM -->
+    <div class="section-beam"></div>
+
+    <!-- ================= SYSTEM CAPABILITIES BENTO SECTION ================= -->
+    <section id="features" class="bento-section reveal">
+      <div class="section-header">
+        <div class="section-header-left">
+          <span class="sec-code">ALTYAPI</span>
+          <h2>Platform Özellikleri</h2>
+        </div>
+      </div>
+
+      <div class="bento-grid">
+        <div class="bento-card spotlight-card">
+          <div class="bento-top">
+            <div class="bento-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <span class="bento-num">01</span>
+          </div>
+          <h3>Rate-Limit Korumalı Paralel Motor</h3>
+          <p>Discord ve Roblox API sorgularında akıllı önbellekleme ve paralel parça işleme mimarisi sayesinde hesaplarınız takılmadan yüzlerce profil saniyeler içinde taranır.</p>
+          <div class="bento-tags">
+            <span>ASYNC BATCHING</span>
+            <span>ANTI-429 GUARD</span>
+          </div>
+        </div>
+
+        <div class="bento-card spotlight-card">
+          <div class="bento-top">
+            <div class="bento-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><circle cx="11" cy="11" r="3"/></svg>
+            </div>
+            <span class="bento-num">02</span>
+          </div>
+          <h3>Derin Bio & Bloxlink Eşleştirici</h3>
+          <p>Roblox profillerindeki sansürlenmiş Discord etiketlerini (blue app, dc, 18 haneli ID) otomatik çözer; Bloxlink ve RoVer entegrasyonu ile doğrulanmış hesapları yakalar.</p>
+          <div class="bento-tags">
+            <span>REGEX PARSER</span>
+            <span>BLOXLINK & ROVER</span>
+          </div>
+        </div>
+
+        <div class="bento-card spotlight-card">
+          <div class="bento-top">
+            <div class="bento-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+            </div>
+            <span class="bento-num">03</span>
+          </div>
+          <h3>Anlık Webhook & Masaüstü EXE</h3>
+          <p>Bulunan değerli hesapları zengin Embed mesajlarıyla doğrudan Discord kanalınıza aktarabilir veya tarayıcıya ihtiyaç duymadan bağımsız masaüstü EXE aracımızı indirebilirsiniz.</p>
+          <div class="bento-tags">
+            <span>LIVE WEBHOOK</span>
+            <span>NATIVE .EXE</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION SEPARATOR BEAM -->
+    <div class="section-beam"></div>
+
+    <!-- ================= COMMUNITY DISCORD SECTION ================= -->
+    <section id="community" class="community-section reveal">
+      <div class="community-card spotlight-card" id="communityTiltCard">
+        <div class="community-grid-bg"></div>
+
+        <div class="community-info">
+          <div class="eyebrow">
+            <span class="eyebrow-pulse"></span> Resmi Topluluk
+          </div>
+          <h2>Early.Host Discord</h2>
+          <p>
+            Tüm özel araçlar, güncellemeler, sunucu tarama panelleri ve lisans desteği <b>discord.gg/anonim</b> adresinde.
+          </p>
+        </div>
+
+        <!-- PURE BLACK OBSIDIAN DISCORD SERVER WIDGET -->
+        <div class="obsidian-server-widget">
+          <div class="osw-head">
+            <div class="osw-icon">
+              <img src="/logo.png" alt="Early.Host" style="width:32px; height:32px; object-fit:contain;" />
+            </div>
+            <div class="osw-meta">
+              <strong>EARLY.HOST OFFICIAL</strong>
+              <span><i class="osw-dot"></i> Doğrulanmış Sunucu</span>
+            </div>
+          </div>
+
+          <div class="osw-invite-row">
+            <code>discord.gg/anonim</code>
+            <button type="button" class="osw-copy-btn" onclick="copyText('https://discord.gg/anonim')">Kopyala</button>
+          </div>
+
+          <a href="https://discord.gg/anonim" target="_blank" rel="noopener" class="osw-join-btn">
+            SUNUCUYA KATIL
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pro-footer">
+    <div class="pro-footer-inner">
+      <div class="pro-footer-brand">
+        <img src="/logo.png" alt="Early.Host" style="width:28px; height:28px; object-fit:contain;" />
+        <div>
+          <strong>Early.Host</strong>
+          <span>© 2026 Tüm hakları saklıdır · thanks to hta</span>
+        </div>
+      </div>
+      <div class="pro-footer-links">
+        <a href="#hero">Genel Bakış</a>
+        <a href="#workspace">Araçlar</a>
+        <a href="#vencord">Vencord</a>
+        <a href="https://discord.gg/anonim" target="_blank" rel="noopener">discord.gg/anonim ↗</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 3D MULTI-ROLE CONTROL CENTER MODAL (USER PANEL / ADMIN PANEL / OWNER PANEL) -->
+  <div id="controlCenterModal" class="vc-modal hidden" onclick="if(event.target===this) closeControlCenterModal()">
+    <div class="cc-modal-box">
+      <div class="vc-modal-head">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div class="auth-mini-logo">
+            <img src="/logo.png" alt="Early.Host" class="brand-emblem-img xs" />
+          </div>
+          <span class="sniper-tier-badge" id="ccRoleBadge">OWNER</span>
+          <div>
+            <strong id="ccHeaderTitle" style="font-family:var(--font-display); font-size:16px;">Kontrol Merkezi</strong>
+            <span id="ccHeaderSub" style="display:block; font-family:var(--font-mono); font-size:11px; color:#71717a;">HWID & Lisans Yönetimi</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button type="button" class="mini-btn" style="padding:6px 12px; border-color:rgba(239,68,68,0.4); color:#fca5a5;" onclick="logoutLicenseSession()">Çıkış Yap</button>
+          <button type="button" class="mini-btn" style="padding:6px 12px;" onclick="closeControlCenterModal()">✕ Kapat</button>
+        </div>
+      </div>
+
+      <div class="vc-modal-tabs" id="ccTabsBar">
+        <button type="button" class="cc-tab active" data-cctab="user" onclick="switchCcTab('user')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Kullanıcı Paneli</span>
+        </button>
+        <button type="button" class="cc-tab hidden" id="ccTabBtnAdmin" data-cctab="admin" onclick="switchCcTab('admin')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>Admin Key Paneli</span>
+        </button>
+        <button type="button" class="cc-tab hidden" id="ccTabBtnOwner" data-cctab="owner" onclick="switchCcTab('owner')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/><path d="M5 20h14"/></svg>
+          <span>Owner (Kurucu) Paneli</span>
+        </button>
+        <button type="button" class="cc-tab hidden" id="ccTabBtnVisitors" data-cctab="visitors" onclick="switchCcTab('visitors')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Siteye Girenler</span>
+          <span class="cc-tab-count" id="ccVisitorsCountBadge">0</span>
+        </button>
+      </div>
+
+      <div class="cc-body">
+        <!-- 1. USER PANEL -->
+        <div id="ccView-user">
+          <div id="ccAnnouncementBar" class="cc-announce-bar"></div>
+
+          <div class="kpi-grid kpi-4" style="margin-bottom:16px;">
+            <div class="kpi-card">
+              <span class="kpi-label">HESAP YETKİSİ</span>
+              <strong class="kpi-value" id="ccUserRole">-</strong>
+            </div>
+            <div class="kpi-card highlight">
+              <span class="kpi-label">KALAN LİSANS SÜRESİ</span>
+              <strong class="kpi-value sm" id="ccUserExpiry">-</strong>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">HWID KİLİT DURUMU</span>
+              <strong class="kpi-value sm" id="ccUserHwidState" style="color:var(--green);">KİLİTLİ & GÜVENLİ</strong>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">TOPLAM GİRİŞ</span>
+              <strong class="kpi-value" id="ccUserLogins">0</strong>
+            </div>
+          </div>
+
+          <div class="pro-section-card">
+            <h4 style="font-family:var(--font-display); margin-bottom:12px;">Cihaz & Lisans Kimliği</h4>
+            <div class="osint-meta-grid" style="margin-top:0;">
+              <div class="osint-meta-box">
+                <span>ETİKET / KULLANICI ADI</span>
+                <strong id="ccUserLabel">-</strong>
+              </div>
+              <div class="osint-meta-box">
+                <span>AKTİF LİSANS ANAHTARI</span>
+                <strong id="ccUserKeyMasked">-</strong>
+              </div>
+              <div class="osint-meta-box">
+                <span>MÜHÜRLÜ DONANIM (HWID)</span>
+                <strong id="ccUserHwidCode">-</strong>
+              </div>
+              <div class="osint-meta-box">
+                <span>DONANIM ÖZELLİĞİ (CPU / GPU)</span>
+                <strong id="ccUserResetQuota" style="font-size:11.5px;">-</strong>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; align-items:center;">
+              <button type="button" class="tool-btn" onclick="copyCurrentHwid()">Gerçek HWID Kopyala</button>
+              <span style="font-family:var(--font-mono); font-size:11px; color:#71717a; display:inline-flex; align-items:center; gap:6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Bu anahtar kalıcı olarak tek bir HWID donanımına kilitlidir.
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. ADMIN KEY MANAGEMENT PANEL -->
+        <div id="ccView-admin" class="hidden">
+          <div class="pro-section-card" style="margin-bottom:16px;">
+            <div class="pro-sec-header" style="margin-bottom:14px;">
+              <div class="pro-sec-title">
+                <span class="step-tag">+</span>
+                <div>
+                  <h4>Yeni Lisans Anahtarı (Key) Oluştur</h4>
+                  <p id="ccCreateDesc">Yeni kullanıcı anahtarı üretip süre ve HWID kilidi tanımlayın.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-4" style="margin-bottom:14px;">
+              <div class="pro-field">
+                <div class="pro-label-row"><label>Kullanıcı Etiketi / Not</label></div>
+                <input type="text" id="admNewLabel" class="pro-input sm" placeholder="Örn: Ahmet VIP, Müşteri #12" />
+              </div>
+
+              <div class="pro-field">
+                <div class="pro-label-row"><label>Yetki Seviyesi</label></div>
+                <select id="admNewRole" class="pro-input sm">
+                  <option value="USER">USER (Kullanıcı)</option>
+                  <option value="ADMIN" id="admRoleOptAdmin">ADMIN (Yönetici)</option>
+                  <option value="OWNER" id="admRoleOptOwner">OWNER (Kurucu)</option>
+                </select>
+              </div>
+
+              <div class="pro-field">
+                <div class="pro-label-row"><label>Süre</label></div>
+                <select id="admNewDays" class="pro-input sm">
+                  <option value="1">1 Günlük (Deneme)</option>
+                  <option value="7">7 Günlük (Haftalık)</option>
+                  <option value="30" selected>30 Günlük (Aylık)</option>
+                  <option value="90">90 Günlük (3 Ay)</option>
+                  <option value="0">Sınırsız (Lifetime)</option>
+                </select>
+              </div>
+
+              <div class="pro-field">
+                <div class="pro-label-row"><label>Özel Key İsmi <span class="opt-tag">Opsiyonel</span></label></div>
+                <input type="text" id="admNewCustomKey" class="pro-input sm" placeholder="Boşsa otomatik üretilir" />
+              </div>
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+              <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; flex:1;">
+                <span class="portal-lock-badge" style="padding:6px 12px; display:inline-flex; align-items:center; gap:6px;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  ZORUNLU TEK-HWID KİLİDİ AKTİF
+                </span>
+                <input type="text" id="admPrebindHwid" class="pro-input sm" style="max-width:255px;" placeholder="Belirli HWID'e kilitle (Boşsa ilk girene)" />
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:12px; color:#a1a1aa;">Adet:</span>
+                  <input type="number" id="admNewCount" class="pro-input sm" value="1" min="1" max="10" style="width:68px;" />
+                </div>
+              </div>
+
+              <button type="button" class="tool-btn run" onclick="adminCreateKey()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                ANAHTAR OLUŞTUR & KOPYALA
+              </button>
+            </div>
+          </div>
+
+          <div class="pro-section-card">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+              <h4 style="font-family:var(--font-display);">Kayıtlı Lisans Anahtarları (<span id="admTotalKeysCount">0</span>)</h4>
+              <input type="text" id="admSearchKeyInput" class="pro-input sm" style="max-width:240px;" placeholder="Key, etiket veya HWID ara..." oninput="renderAdminKeysTable()" />
+            </div>
+            <div id="admKeysListArea" class="cc-keys-table-wrap"></div>
+          </div>
+        </div>
+
+        <!-- 3. OWNER (KURUCU) MASTER PANEL -->
+        <div id="ccView-owner" class="hidden">
+          <div class="kpi-grid kpi-5" style="margin-bottom:16px;">
+            <div class="kpi-card highlight"><span class="kpi-label">AKTİF OTURUMLAR</span><strong class="kpi-value" id="ownActiveSessions">0</strong></div>
+            <div class="kpi-card"><span class="kpi-label">TOPLAM ANAHTAR</span><strong class="kpi-value" id="ownTotalKeys">0</strong></div>
+            <div class="kpi-card"><span class="kpi-label">HWID KİLİTLİ CİHAZ</span><strong class="kpi-value" id="ownBoundHwids">0</strong></div>
+            <div class="kpi-card"><span class="kpi-label">BANLI ANAHTAR</span><strong class="kpi-value" id="ownBannedKeys">0</strong></div>
+            <div class="kpi-card"><span class="kpi-label">WAF & DDOS ENGEL</span><strong class="kpi-value" style="color:var(--green);" id="ownWafBlocked">0</strong></div>
+          </div>
+
+          <div class="pro-section-card" style="margin-bottom:16px;">
+            <h4 style="font-family:var(--font-display); margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/><path d="M5 20h14"/></svg>
+              Kurucu Genel Sistem Ayarları & Duyuru
+            </h4>
+            <p style="font-size:12.5px; color:#a1a1aa; margin-bottom:12px;">Tüm kullanıcıların panelinde görünen global sistem duyurusunu güncelleyin veya tüm cihazların HWID kilidini tek tuşla sıfırlayın.</p>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+              <input type="text" id="ownAnnouncementInput" class="pro-input sm" style="flex:1; min-width:240px;" placeholder="Global duyuru metni..." />
+              <button type="button" class="tool-btn run" onclick="ownerSaveAnnouncement()">Duyuruyu Kaydet</button>
+              <button type="button" class="tool-btn danger-hover" onclick="ownerResetAllHwids()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+                Tüm Kullanıcı HWID'lerini Sıfırla
+              </button>
+            </div>
+          </div>
+
+          <div class="pro-section-card">
+            <h4 style="font-family:var(--font-display); margin-bottom:10px;">Canlı Güvenlik & HWID Giriş Logları</h4>
+            <div id="ownLogsArea" class="cc-logs-box"></div>
+          </div>
+        </div>
+
+        <!-- 4. OWNER VISITOR RADAR & FULL GELİŞMİŞ LOG PANEL -->
+        <div id="ccView-visitors" class="hidden">
+          <div class="kpi-grid kpi-4" style="margin-bottom:16px;">
+            <div class="kpi-card highlight">
+              <span class="kpi-label">TOPLAM ZİYARET / GİRİŞ</span>
+              <strong class="kpi-value" id="visTotalRecords">0</strong>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">BENZERSİZ CİHAZ (HWID)</span>
+              <strong class="kpi-value" id="visUniqueHwids">0</strong>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">YETKİLİ GİRİŞLER</span>
+              <strong class="kpi-value" style="color:var(--green);" id="visAuthCount">0</strong>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-label">REDDEDİLEN / KARA LİSTE</span>
+              <strong class="kpi-value" style="color:#f87171;" id="visRejectCount">0</strong>
+            </div>
+          </div>
+
+          <!-- DISCORD WEBHOOK AUTO-DROP CONFIG -->
+          <div class="pro-section-card" style="margin-bottom:16px;">
+            <div class="pro-sec-header" style="margin-bottom:12px;">
+              <div class="pro-sec-title">
+                <span class="step-tag">WH</span>
+                <div>
+                  <h4>Siteye Girenleri Discord Webhook'a Düşür</h4>
+                  <p>Giren kişilerin IPv4 adresi, konumu, HWID ve sistem bilgilerini içeren sade, çizgisiz kayıt kartı anında Discord kanalınıza düşer.</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+              <input type="text" id="visWebhookUrlInput" class="pro-input sm" style="flex:1; min-width:250px;" placeholder="https://discord.com/api/webhooks/..." />
+              <select id="visWebhookModeSelect" class="pro-input sm" style="max-width:250px;">
+                <option value="all">Her Gireni Düşür (Ziyaret + Giriş + Engel)</option>
+                <option value="auth_only">Sadece Key Giriş & Reddedilenleri Düşür</option>
+              </select>
+              <button type="button" class="tool-btn run" onclick="saveVisitorWebhookSettings()">Kaydet & Aktif Et</button>
+              <button type="button" class="tool-btn" onclick="testVisitorWebhook()">Test Log Gönder</button>
+            </div>
+          </div>
+
+          <!-- FILTER & SEARCH TOOLBAR -->
+          <div class="pro-section-card">
+            <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+              <div style="display:flex; gap:6px; flex-wrap:wrap;" id="visFilterPills">
+                <button type="button" class="chip active" onclick="setVisitorFilter('ALL', this)">Tümü</button>
+                <button type="button" class="chip" onclick="setVisitorFilter('GATE_VISIT', this)">Site Ziyareti</button>
+                <button type="button" class="chip" onclick="setVisitorFilter('AUTH_SUCCESS', this)">Yetkili Giriş</button>
+                <button type="button" class="chip" onclick="setVisitorFilter('REJECTED', this)">Reddedilen / Engel</button>
+              </div>
+
+              <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <input type="text" id="visSearchInput" class="pro-input sm" style="width:215px;" placeholder="IP, Ülke, HWID, GPU, Key ara..." oninput="renderOwnerVisitorsList()" />
+                <button type="button" class="mini-btn" style="padding:7px 12px;" onclick="fetchOwnerVisitors()">Yenile</button>
+                <button type="button" class="mini-btn" style="padding:7px 12px;" onclick="exportVisitorsCsv()">CSV İndir</button>
+                <button type="button" class="mini-btn" style="padding:7px 12px; border-color:rgba(239,68,68,0.45); color:#fca5a5;" onclick="clearOwnerVisitors()">Temizle</button>
+              </div>
+            </div>
+
+            <div id="ownVisitorsListArea" class="vis-cards-stack"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTRL + K COMMAND PALETTE MODAL -->
+  <div id="cmdPaletteModal" class="vc-modal hidden" onclick="if(event.target===this) closeCmdPalette()">
+    <div class="cmd-palette-box">
+      <div class="cmd-input-row">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a1a1aa" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="cmdSearchInput" placeholder="Komut, araç veya Vencord eklentisi arayın..." oninput="renderCmdPaletteList()" onkeydown="onCmdPaletteKey(event)" />
+        <kbd onclick="closeCmdPalette()" style="cursor:pointer;">ESC</kbd>
+      </div>
+      <div class="cmd-list" id="cmdPaletteList"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/app.js?v=20261117c"></script>
+</body>
+</html>
